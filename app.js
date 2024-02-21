@@ -45,9 +45,7 @@ mongoose.connect('mongodb://localhost/BlogDB');
 app.get('/', async (req, res) => {
     const blogposts = await BlogPost.find({})
     console.log(blogposts)
-    res.render('index', {
-        blogposts
-    });
+    res.render('index', {blogposts});
 });
 
 app.get('/about', (req, res) => {
