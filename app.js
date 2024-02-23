@@ -1,21 +1,4 @@
-//the require function is similar to require which takes the name of the node module
-//as a string argument and returns the package
-/*
-const http = require('node:http');
-const host = 'localhost';
-const port = 3000;
-const requestListener = (req, res) => {
-    res.writeHead(200);
-    res.end('My first server');
-};
-
-const server = http.createServer(requestListener);
-server.listen(port, host, () => {
-    console.log(`Server is running on http://${host}:${port}`);
-});
-*/
 //setting up a local server with express
-
 const express = require('express');
 const path = require('path');
 const bodyParser = require('body-parser');
@@ -27,25 +10,24 @@ const port = 3000;
 
 const app = new express();
 
-mongoose.connect('mongodb://localhost/BlogDB');
-
 app.set('view engine', 'ejs');
 
+//express middleware 
 app.use(express.static('public'));
 app.use(express.json());
 app.use(bodyParser.urlencoded({extended:false}));
 app.use(fileUpload());
 
-//this is our connection string to our local mongodb 
+// string to our local mongodb 
 mongoose.connect('mongodb://localhost/BlogDB');
 
-
-//these are our express routes
-//we set up our get route to the root route / 
+//express routes
+//set up our get route to the root route / 
 app.get('/', async (req, res) => {
-    const blogposts = await BlogPost.find({})
-    console.log(blogposts)
-    res.render('index', {blogposts});
+    //find all documents in our BlogPost collection, store the result in blogposts
+    const blogposts = await BlogPost.find({});
+    //render our index page and we send our blogposts array in a var named blogposts so that it can be used in index.ejs
+    res.render('index', {blogposts:blogposts});
 });
 
 app.get('/about', (req, res) => {
@@ -59,8 +41,10 @@ app.get('/contact', (req, res) => {
 //we create our get route for each individual blog page 
 //we update our route with :id which is a wild card that accepts any string value
 app.get('/post/:id', async (req, res) => {
-    const blogpost = await BlogPost.findById(req.params.id)
-    res.render('post', { blogpost })
+    //find a specific blogpost by id and save it to blogpost
+    const blogpost = await BlogPost.findById(req.params.id);
+    //render the post page and send blogpost aray to the page
+    res.render('post', { blogpost: blogpost });
 });
 
 app.get('/posts/new', (req, res) => {
@@ -76,7 +60,7 @@ app.post('/posts/store', async (req, res) => {
                 ...req.body,
                 image: '/img/' + image.name
             });
-            res.redirect('/')
+            res.redirect('/');
         });
 });
 
