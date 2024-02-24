@@ -1,68 +1,57 @@
 //setting up a local server with express
 const express = require('express');
-const path = require('path');
+const port = 3000;
 const bodyParser = require('body-parser');
 const mongoose = require('mongoose');
 const ejs = require('ejs');
 const fileUpload = require('express-fileupload');
-const BlogPost = require('./models/BlogPost');
-const port = 3000;
+const expressSession = require('express-session');
+const newPostController = require('./controllers/newPost.js');
+const homeController = require('./controllers/home.js');
+const storePostController = require('./controllers/storePost.js');
+const getPostController = require('./controllers/getPost.js');
+const newUserController = require('./controllers/newUser.js');
+const storeUserController = require('./controllers/storeUser.js');
+const loginController = require('./controllers/login.js');
+const loginUserController = require('./controllers/loginUser.js');
 
 const app = new express();
 
 app.set('view engine', 'ejs');
 
+const validateMiddleWare = require('./middleware/validationMiddleware.js');
+
 //express middleware 
 app.use(express.static('public'));
-app.use(express.json());
-app.use(bodyParser.urlencoded({extended:false}));
 app.use(fileUpload());
+app.use('/posts/store', validateMiddleWare);
+app.use(express.json());
+app.use(bodyParser.urlencoded({ extended: false }));
+app.use(expressSession({ secret: 'keyboard dog' }));
 
 // string to our local mongodb 
 mongoose.connect('mongodb://localhost/BlogDB');
 
 //express routes
 //set up our get route to the root route / 
-app.get('/', async (req, res) => {
-    //find all documents in our BlogPost collection, store the result in blogposts
-    const blogposts = await BlogPost.find({});
-    //render our index page and we send our blogposts array in a var named blogposts so that it can be used in index.ejs
-    res.render('index', {blogposts:blogposts});
-});
-
-app.get('/about', (req, res) => {
-    res.render('about');
-});
-
-app.get('/contact', (req, res) => {
-    res.render('contact');
-});
+app.get('/', homeController);
 
 //we create our get route for each individual blog page 
 //we update our route with :id which is a wild card that accepts any string value
-app.get('/post/:id', async (req, res) => {
-    //find a specific blogpost by id and save it to blogpost
-    const blogpost = await BlogPost.findById(req.params.id);
-    //render the post page and send blogpost aray to the page
-    res.render('post', { blogpost: blogpost });
-});
+app.get('/post/:id', getPostController);
 
-app.get('/posts/new', (req, res) => {
-    res.render('create');
-});
+app.get('/posts/new', newPostController);
+
+app.get('/auth/register', newUserController);
+
+app.get('/auth/login', loginController);
 
 //we use async await for asynchronous method calling
-app.post('/posts/store', async (req, res) => {
-    let image = req.files.image
-    image.mv(path.resolve(__dirname, 'public/img', image.name),
-        async (error) => {
-            await BlogPost.create({
-                ...req.body,
-                image: '/img/' + image.name
-            });
-            res.redirect('/');
-        });
-});
+app.post('/posts/store', storePostController);
+
+app.post('/users/register', storeUserController);
+
+app.post('/users/login', loginUserController);
 
 app.listen(port, () => {
     console.log(`App listening on port ${port}`);
