@@ -14,12 +14,17 @@ const newUserController = require('./controllers/newUser.js');
 const storeUserController = require('./controllers/storeUser.js');
 const loginController = require('./controllers/login.js');
 const loginUserController = require('./controllers/loginUser.js');
+const authMiddleware = require('./middleware/authMiddleware.js');
+const redirectIfAuthenticatedMiddleware = require('./middleware/redirectIfAuthenticatedMiddleware.js');
+const logoutController = require('./controllers/logout.js');
 
 const app = new express();
 
 app.set('view engine', 'ejs');
 
 const validateMiddleWare = require('./middleware/validationMiddleware.js');
+
+global.loggedIn = null;
 
 //express middleware 
 app.use(express.static('public'));
@@ -28,6 +33,7 @@ app.use('/posts/store', validateMiddleWare);
 app.use(express.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(expressSession({ secret: 'keyboard dog' }));
+app.use('*', (req, res, next) => { loggedIn = req.session.userId; next(); })
 
 // string to our local mongodb 
 mongoose.connect('mongodb://localhost/BlogDB');
@@ -40,18 +46,19 @@ app.get('/', homeController);
 //we update our route with :id which is a wild card that accepts any string value
 app.get('/post/:id', getPostController);
 
-app.get('/posts/new', newPostController);
+app.get('/posts/new', authMiddleware, newPostController);
 
-app.get('/auth/register', newUserController);
+app.get('/auth/register', redirectIfAuthenticatedMiddleware, newUserController);
 
-app.get('/auth/login', loginController);
+app.get('/auth/login', redirectIfAuthenticatedMiddleware, loginController);
 
-//we use async await for asynchronous method calling
-app.post('/posts/store', storePostController);
+app.get('/auth/logout', logoutController);
 
-app.post('/users/register', storeUserController);
+app.post('/posts/store', authMiddleware, storePostController);
 
-app.post('/users/login', loginUserController);
+app.post('/users/register', redirectIfAuthenticatedMiddleware, storeUserController);
+
+app.post('/users/login', redirectIfAuthenticatedMiddleware, loginUserController);
 
 app.listen(port, () => {
     console.log(`App listening on port ${port}`);
