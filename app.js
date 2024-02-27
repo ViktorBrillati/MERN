@@ -5,7 +5,7 @@ const bodyParser = require('body-parser');
 const mongoose = require('mongoose');
 const ejs = require('ejs');
 const fileUpload = require('express-fileupload');
-const expressSession = require('express-session');
+const session = require('express-session');
 const newPostController = require('./controllers/newPost.js');
 const homeController = require('./controllers/home.js');
 const storePostController = require('./controllers/storePost.js');
@@ -32,8 +32,8 @@ app.use(fileUpload());
 app.use('/posts/store', validateMiddleWare);
 app.use(express.json());
 app.use(bodyParser.urlencoded({ extended: false }));
-app.use(expressSession({ secret: 'keyboard dog' }));
-app.use('*', (req, res, next) => { loggedIn = req.session.userId; next(); })
+app.use(session({ secret: 'keyboard dog', resave:true, saveUninitialized: true }));
+app.use('*', (req, res, next) => { loggedIn = req.session.userId; next(); });
 
 // string to our local mongodb 
 mongoose.connect('mongodb://localhost/BlogDB');
