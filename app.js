@@ -28,12 +28,22 @@ global.loggedIn = null;
 
 //express middleware 
 app.use(express.static('public'));
+app.use(express.json());
+app.use(bodyParser.urlencoded({ extended: false }));
 app.use(fileUpload());
 app.use('/posts/store', validateMiddleWare);
 app.use(express.json());
-app.use(bodyParser.urlencoded({ extended: false }));
-app.use(session({ secret: 'keyboard dog', resave:true, saveUninitialized: true }));
-app.use('*', (req, res, next) => { loggedIn = req.session.userId; next(); });
+app.use(session(
+    {
+        secret: 'keyboard dog',
+        resave: true,
+        saveUninitialized: true
+    }
+));
+app.use('*', (req, res, next) => {
+    loggedIn = req.session.userId;
+    next();
+});
 
 // string to our local mongodb 
 mongoose.connect('mongodb://localhost/BlogDB');
@@ -45,19 +55,13 @@ app.get('/', homeController);
 //we create our get route for each individual blog page 
 //we update our route with :id which is a wild card that accepts any string value
 app.get('/post/:id', getPostController);
-
 app.get('/posts/new', authMiddleware, newPostController);
-
 app.get('/auth/register', redirectIfAuthenticatedMiddleware, newUserController);
-
 app.get('/auth/login', redirectIfAuthenticatedMiddleware, loginController);
-
 app.get('/auth/logout', logoutController);
 
 app.post('/posts/store', authMiddleware, storePostController);
-
 app.post('/users/register', redirectIfAuthenticatedMiddleware, storeUserController);
-
 app.post('/users/login', redirectIfAuthenticatedMiddleware, loginUserController);
 
 app.listen(port, () => {

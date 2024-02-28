@@ -5,20 +5,26 @@ const bcrypt = require('bcrypt');
 const UserSchema = new Schema({
     username: {
         type: String,
-        required: true,
-        unique: true
+        required:true,
+        unique:true
     },
     password: {
-        type: String,
-        required: true
+        type:String,
+        required:true
     }
 });
 
+//before we save any req.body into our users collection, execute function 
+//this is how our user.password is hashed before it is saved to the db 
 UserSchema.pre('save', function (next) {
-    const user = this
+    //the user being saved
+    const user = this;
+    console.log(`this has a value of ${user}`);
 
     bcrypt.hash(user.password, 10, (error, hash) => {
+        //replace the original password with the hashed password
         user.password = hash;
+        console.log(`hashed password is ${user.password}`);
         next();
     });
 });
