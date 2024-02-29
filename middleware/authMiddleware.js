@@ -1,10 +1,13 @@
 const User = require('../models/User.js');
 
-module.exports = (req, res, next) => {
-    User.findById(req.session.userId).then((error, user) => {
-        if (error || !user) {
+module.exports = async (req, res, next) => {
+    try {
+        const user = await User.findById(req.session.userId);
+        if (!user) {
             return res.redirect('/');
         }
         next();
-    });
+    } catch (error) {
+        console.log(error);
+    }
 }
