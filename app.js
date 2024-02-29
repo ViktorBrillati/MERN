@@ -17,6 +17,7 @@ const loginUserController = require('./controllers/loginUser.js');
 const authMiddleware = require('./middleware/authMiddleware.js');
 const redirectIfAuthenticatedMiddleware = require('./middleware/redirectIfAuthenticatedMiddleware.js');
 const logoutController = require('./controllers/logout.js');
+const flash = require('connect-flash');
 
 const app = new express();
 
@@ -44,6 +45,7 @@ app.use('*', (req, res, next) => {
     loggedIn = req.session.userId;
     next();
 });
+app.use(flash());
 
 // string to our local mongodb 
 mongoose.connect('mongodb://localhost/BlogDB');
@@ -63,6 +65,10 @@ app.get('/auth/logout', logoutController);
 app.post('/posts/store', authMiddleware, storePostController);
 app.post('/users/register', redirectIfAuthenticatedMiddleware, storeUserController);
 app.post('/users/login', redirectIfAuthenticatedMiddleware, loginUserController);
+
+app.use((req, res) => {
+    res.render('notfound');
+});
 
 app.listen(port, () => {
     console.log(`App listening on port ${port}`);
