@@ -56,15 +56,15 @@ app.get('/', homeController);
 
 //we create our get route for each individual blog page 
 //we update our route with :id which is a wild card that accepts any string value
-app.get('/post/:id', getPostController);
-app.get('/posts/new', authMiddleware, newPostController);
 app.get('/auth/register', redirectIfAuthenticatedMiddleware, newUserController);
 app.get('/auth/login', redirectIfAuthenticatedMiddleware, loginController);
 app.get('/auth/logout', logoutController);
+app.get('/post/:id', getPostController);
+app.get('/posts/new', authMiddleware, newPostController);
 
-app.post('/posts/store', authMiddleware, storePostController);
 app.post('/users/register', redirectIfAuthenticatedMiddleware, storeUserController);
 app.post('/users/login', redirectIfAuthenticatedMiddleware, loginUserController);
+app.post('/posts/store', authMiddleware, storePostController);
 
 app.use((req, res) => {
     res.render('notfound');

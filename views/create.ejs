@@ -30,10 +30,12 @@
                                         <label for="title">Description</label>
                                         <textarea class="form-control" name="body" id="body" rows="5"></textarea>
                                         <script>
-                                            $('#summernote').summernote({
-                                                placeholder: 'Hello Bootstrap 5',
-                                                tabsize: 2,
-                                                height: 100
+                                            $(document).ready(function(){
+                                                $('#body').summernote({
+                                                    placeholder: 'Hello Bootstrap 5',
+                                                    tabsize: 2,
+                                                    height: 200
+                                                });
                                             });
                                         </script>
                                     </div>
