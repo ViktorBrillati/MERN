@@ -1,11 +1,17 @@
 //setting up a local server with express
 const express = require('express');
-const port = 3000;
-const bodyParser = require('body-parser');
 const mongoose = require('mongoose');
+mongoose.connect('mongodb://localhost/BlogDB');
+
+const app = new express();
+
+const port = 3000;
 const ejs = require('ejs');
+const bodyParser = require('body-parser');
 const fileUpload = require('express-fileupload');
 const session = require('express-session');
+const flash = require('connect-flash');
+
 const newPostController = require('./controllers/newPost.js');
 const homeController = require('./controllers/home.js');
 const storePostController = require('./controllers/storePost.js');
@@ -17,13 +23,10 @@ const loginUserController = require('./controllers/loginUser.js');
 const authMiddleware = require('./middleware/authMiddleware.js');
 const redirectIfAuthenticatedMiddleware = require('./middleware/redirectIfAuthenticatedMiddleware.js');
 const logoutController = require('./controllers/logout.js');
-const flash = require('connect-flash');
-
-const app = new express();
-
-app.set('view engine', 'ejs');
 
 const validateMiddleWare = require('./middleware/validationMiddleware.js');
+
+app.set('view engine', 'ejs');
 
 global.loggedIn = null;
 
@@ -47,15 +50,9 @@ app.use('*', (req, res, next) => {
 });
 app.use(flash());
 
-// string to our local mongodb 
-mongoose.connect('mongodb://localhost/BlogDB');
-
 //express routes
 //set up our get route to the root route / 
 app.get('/', homeController);
-
-//we create our get route for each individual blog page 
-//we update our route with :id which is a wild card that accepts any string value
 app.get('/auth/register', redirectIfAuthenticatedMiddleware, newUserController);
 app.get('/auth/login', redirectIfAuthenticatedMiddleware, loginController);
 app.get('/auth/logout', logoutController);
