@@ -1,7 +1,7 @@
 //setting up a local server with express
 const express = require('express');
 const mongoose = require('mongoose');
-mongoose.connect('mongodb://localhost/BlogDB');
+mongoose.connect('mongodb+srv://admin-viktorb:5BSaPIkpzAfTQ3T6@cluster0.ln2np.mongodb.net/newBlogDB?retryWrites=true&w=majority&appName=Cluster0');
 
 const app = new express();
 
