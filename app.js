@@ -36,7 +36,6 @@ app.use(express.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(fileUpload());
 app.use('/posts/store', validateMiddleWare);
-app.use(express.json());
 app.use(session(
     {
         secret: 'keyboard dog',
